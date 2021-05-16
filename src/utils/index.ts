@@ -1,7 +1,7 @@
 export { getTextWidth } from "./getTextWidth";
 
-export { Graph, NODE_FONT } from "./Graph";
-export type { Point, Edge, GraphProps } from "./Graph";
+export { GraphView, NODE_FONT } from "./GraphView";
+export type { Point, Edge, GraphViewProps } from "./GraphView";
 
 export { parseGraphML } from "./parseGraphML";
-export type { ParsedGraph } from "./parseGraphML";
+export type { Graph } from "./parseGraphML";

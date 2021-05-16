@@ -14,7 +14,6 @@ type GraphML = {
   graphml: {
     graph: {
       "@_id"?: string;
-      "@_edgedefault"?: string;
       edge?: GraphMLEdge | GraphMLEdge[];
       node?: GraphMLNode | GraphMLNode[];
     };
@@ -23,19 +22,24 @@ type GraphML = {
 
 type Edge = { from: string; to: string };
 
-export type ParsedGraph = {
+export type Graph = {
   nodes: Set<string>;
   edges: Map<string, Edge>;
 };
 
-function getProp<T>(obj: T, propName: keyof T): T[keyof T] {
+function getProp<T>(
+  obj: T,
+  propName: keyof T,
+  throwError: boolean = true
+): T[keyof T] {
   const prop = obj[propName];
-  if (prop === undefined)
+  if (prop === undefined && throwError) {
     throw Error(`No ${propName} specified for object ${obj}`);
+  }
   return prop;
 }
 
-function getParsedGraph(graphJson: GraphML): ParsedGraph {
+function getParsedGraph(graphJson: GraphML): Graph {
   if (graphJson.graphml === undefined) throw Error("No graphml tag specified");
   if (graphJson.graphml.graph === undefined)
     throw Error("No graph tag specified");
@@ -67,7 +71,7 @@ function getParsedGraph(graphJson: GraphML): ParsedGraph {
   return { nodes, edges };
 }
 
-export function parseGraphML(xml: string): ParsedGraph | undefined {
+export function parseGraphML(xml: string): Graph | undefined {
   try {
     const graphJson = parse(xml, { ignoreAttributes: false });
     return getParsedGraph(graphJson);

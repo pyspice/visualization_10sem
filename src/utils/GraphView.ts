@@ -7,7 +7,7 @@ export type Point = {
 };
 export type Edge = { from: string; to: string };
 
-export interface GraphProps {
+export interface GraphViewProps {
   nodes: Map<string, Point>;
   edges: Edge[];
 }
@@ -17,8 +17,29 @@ const NODE_FONT_SIZE = "14px";
 
 export const NODE_FONT = `${NODE_FONT_SIZE} ${NODE_FONT_FAMILY}`;
 
-export class Graph {
-  constructor(private readonly props: GraphProps) {}
+export class GraphView {
+  private readonly minX: number;
+  private readonly minY: number;
+  private readonly maxX: number;
+  private readonly maxY: number;
+  constructor(private readonly props: GraphViewProps) {
+    let minX = Number.POSITIVE_INFINITY;
+    let minY = Number.POSITIVE_INFINITY;
+    let maxX = Number.NEGATIVE_INFINITY;
+    let maxY = Number.NEGATIVE_INFINITY;
+
+    for (const { x, y } of props.nodes.values()) {
+      minX = Math.min(minX, x);
+      minY = Math.min(minY, y);
+      maxX = Math.max(maxX, x);
+      maxY = Math.max(maxY, y);
+    }
+
+    this.minX = minX;
+    this.minY = minY;
+    this.maxX = maxX;
+    this.maxY = maxY;
+  }
 
   private drawed: Map<
     HTMLElement,
@@ -30,9 +51,12 @@ export class Graph {
 
     const vis = d3.select(node).append("svg");
 
-    const w = 900;
-    const h = 400;
-    vis.attr("width", w).attr("height", h);
+    const w = this.maxX - this.minX;
+    const h = this.maxY - this.minY;
+    vis
+      .attr("width", this.maxX - this.minX)
+      .attr("height", this.maxY - this.minY)
+      .attr("viewBox", [this.minX - 10, this.minY - 10, w + 20, h + 20].join(" "));
 
     const { nodes, edges } = this.props;
     vis
@@ -71,6 +95,12 @@ export class Graph {
       .attr("font-size", NODE_FONT_SIZE)
       .attr("fill", "black")
       .attr("text-anchor", "beginning");
+
+    const zoom = d3.zoom<SVGSVGElement, unknown>().on("zoom", (e) => {
+      vis.attr("transform", e.transform);
+    });
+
+    vis.call(zoom).call(zoom.transform, d3.zoomIdentity);
 
     this.drawed.set(node, vis);
   }
