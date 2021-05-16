@@ -21,8 +21,8 @@ function App() {
         <Pages />
       </Row>
       <Row className="footer bg-secondary mw-100">
-        <Col>
-          <a className="text-light" href="https://github.com/pyspice/visualization_10sem">Github repo</a>
+        <Col className="position-relative mw-100">
+          <a className="text-light position-absolute r-0" href="https://github.com/pyspice/visualization_10sem">Github repo</a>
         </Col>
       </Row>
     </Container>
