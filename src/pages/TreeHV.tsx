@@ -29,7 +29,7 @@ export function TreeHV() {
         <Col className="main-left-panel h-100">
           <GraphInput value={value} onChange={onChange} />
         </Col>
-        <Col className="main-content h-100">
+        <Col className="main-content px-0 mx-0 h-100">
           <div ref={ref} />
         </Col>
       </Row>

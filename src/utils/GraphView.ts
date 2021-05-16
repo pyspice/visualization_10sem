@@ -54,8 +54,8 @@ export class GraphView {
     const w = this.maxX - this.minX;
     const h = this.maxY - this.minY;
     vis
-      .attr("width", this.maxX - this.minX)
-      .attr("height", this.maxY - this.minY)
+      .attr("width", "100%")
+      .attr("height", "100%")
       .attr("viewBox", [this.minX - 10, this.minY - 10, w + 20, h + 20].join(" "));
 
     const { nodes, edges } = this.props;
