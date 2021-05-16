@@ -17,7 +17,7 @@ function App() {
           <p className="text-light">Винокуров Сергей Сергеевич</p>
         </Col>
       </Row>
-      <Row className="content align-self-stretch px-0 mx-0">
+      <Row className="content align-self-stretch px-0 mx-0 mw-100">
         <Pages />
       </Row>
       <Row className="footer bg-secondary mw-100">

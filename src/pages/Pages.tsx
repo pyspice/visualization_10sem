@@ -1,40 +1,16 @@
-import Accordion from "react-bootstrap/Accordion";
-import Card from "react-bootstrap/Card";
-import Button from "react-bootstrap/Button";
+import Tabs from "react-bootstrap/Tabs";
+import Tab from "react-bootstrap/Tab";
+import { TreeHV } from "./TreeHV";
 
 export function Pages() {
   return (
-    <Accordion defaultActiveKey="1">
-      <Card>
-        <Card.Header>
-          <Accordion.Toggle as={Button} variant="link" eventKey="1">
-            Задание 1
-          </Accordion.Toggle>
-        </Card.Header>
-        <Accordion.Collapse eventKey="1">
-          <Card.Body>HV-алгоритм</Card.Body>
-        </Accordion.Collapse>
-      </Card>
-      <Card>
-        <Card.Header>
-          <Accordion.Toggle as={Button} variant="link" eventKey="2">
-            Задание 2
-          </Accordion.Toggle>
-        </Card.Header>
-        <Accordion.Collapse eventKey="2">
-          <Card.Body>Алгоритм Коффмана-Грэма</Card.Body>
-        </Accordion.Collapse>
-      </Card>
-      <Card>
-        <Card.Header>
-          <Accordion.Toggle as={Button} variant="link" eventKey="3">
-            Задание 3
-          </Accordion.Toggle>
-        </Card.Header>
-        <Accordion.Collapse eventKey="3">
-          <Card.Body>To be continued</Card.Body>
-        </Accordion.Collapse>
-      </Card>
-    </Accordion>
+    <Tabs defaultActiveKey="1">
+      <Tab eventKey="1" title="Задание 1">
+        <TreeHV />
+      </Tab>
+      <Tab eventKey="2" title="Задание 2" disabled>
+      </Tab>
+      <Tab eventKey="3" title="Задание 3" disabled></Tab>
+    </Tabs>
   );
 }
