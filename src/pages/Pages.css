@@ -1,0 +1,19 @@
+.main-container {
+  display: flex;
+  flex-flow: row nowrap;
+}
+
+.main-left-panel {
+  max-width: 300px;
+  min-width: 300px;
+  background-color: #dee2e6;
+}
+
+.main-content {
+  flex-grow: 1;
+}
+
+.tab-content,
+.tab-content > * {
+  height: 100%;
+}
