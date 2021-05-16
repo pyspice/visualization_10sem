@@ -1,3 +1,4 @@
+import "./GraphInput.css";
 import Form from "react-bootstrap/Form";
 
 export type GraphInputProps = {
@@ -25,9 +26,11 @@ export function GraphInput(props: GraphInputProps) {
   };
 
   return (
-    <Form>
-      <Form.Group>
-        <Form.Label>Введите граф в формате GraphML</Form.Label>
+    <Form className="d-flex flex-column h-100 py-1">
+      <Form.Group className="graph-input-textarea">
+        <Form.Label className="text-center w-100">
+          Введите граф в формате GraphML
+        </Form.Label>
         <Form.Control
           as="textarea"
           rows={8}
@@ -36,9 +39,9 @@ export function GraphInput(props: GraphInputProps) {
           onChange={({ target: { value } }) => props.onChange(value)}
         />
       </Form.Group>
-      <Form.Group>
+      <Form.Group className="graph-input-file border-top border-secondary w-100">
         <Form.File
-          label="или загрузите xml-файл"
+          className="text-center"
           accept="text/xml"
           onChange={onChangeFile}
         />
