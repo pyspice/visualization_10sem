@@ -80,6 +80,7 @@ export class GraphView {
     const vis = d3
       .select(node)
       .append("svg")
+      .attr("cursor", "move")
       .attr("width", width)
       .attr("height", height)
       .attr(
