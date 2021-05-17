@@ -24,7 +24,7 @@ type Edge = { from: string; to: string };
 
 export type Graph = {
   nodes: Set<string>;
-  edges: Map<string, Edge>;
+  edges: Edge[];
 };
 
 function getProp<T>(
@@ -54,17 +54,16 @@ function getParsedGraph(graphJson: GraphML): Graph {
     });
   }
 
-  const edges = new Map<string, Edge>();
+  const edges: Edge[] = [];
   if (edge !== undefined) {
     if (!Array.isArray(edge)) edge = [edge];
     edge.forEach((edge) => {
-      const id = getProp(edge, "@_id");
       const from = getProp(edge, "@_source");
       if (!nodes.has(from)) throw Error(`Node ${from} was not specified`);
       const to = getProp(edge, "@_target");
       if (!nodes.has(to)) throw Error(`Node ${to} was not specified`);
 
-      edges.set(id, { from, to });
+      edges.push({ from, to });
     });
   }
 

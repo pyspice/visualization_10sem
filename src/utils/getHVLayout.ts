@@ -142,14 +142,12 @@ export function getHVLayout(graph: Graph): GraphViewProps {
     [...graph.nodes.values()].map((node) => [node, []])
   );
   let possibleRoots = new Set(graph.nodes);
-  const edges: Edge[] = [];
-  for (const edge of graph.edges.values()) {
+  for (const edge of graph.edges) {
     edgesList.get(edge.from).push(edge.to);
     possibleRoots.delete(edge.to);
-    edges.push(edge);
   }
 
   const root = possibleRoots.values().next().value;
   const nodes = getHVNodes(root, edgesList);
-  return { nodes, edges };
+  return { nodes, edges: graph.edges };
 }
