@@ -2,15 +2,17 @@ import * as React from "react";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Container";
 import Col from "react-bootstrap/Container";
+import { debounce } from "lodash";
 import { GraphInput, GraphView, GraphViewProps } from "src/components";
 import { getHVLayout, parseGraphML } from "src/utils";
 
 export function TreeHV() {
-  const ref = React.useRef<HTMLDivElement>(null);
-  const redraw = (graphProps: GraphViewProps) => {
-    const g = new GraphView(graphProps);
-    g.draw(ref.current);
-  };
+  const [graphProps, setGraphProps] = React.useState<GraphViewProps>({
+    nodes: new Map(),
+    edges: [],
+  });
+
+  const setGraphPropsDebounced = debounce(setGraphProps, 500);
 
   const [value, setValue] = React.useState("");
   const onChange = (value: string) => {
@@ -19,7 +21,7 @@ export function TreeHV() {
     if (graph === undefined) return;
 
     const graphProps = getHVLayout(graph);
-    redraw(graphProps);
+    setGraphPropsDebounced(graphProps);
   };
 
   return (
@@ -29,7 +31,7 @@ export function TreeHV() {
           <GraphInput value={value} onChange={onChange} />
         </Col>
         <Col className="main-content px-0 mx-0 h-100">
-          <div className="w-100 h-100" ref={ref} />
+          <GraphView {...graphProps} />
         </Col>
       </Row>
     </Container>

@@ -1,4 +1,6 @@
+import * as React from "react";
 import * as d3 from "d3";
+import { withResizeDetector } from "react-resize-detector";
 import { getTextWidth } from "src/utils";
 
 export type Point = {
@@ -13,6 +15,11 @@ export interface GraphViewProps {
   edges: Edge[];
 }
 
+interface GraphViewCollectedProps {
+  width: number;
+  height: number;
+}
+
 export const NODE_FONT_SIZE = 14;
 export const NODE_TEXT_PADDING_RIGHT = 4;
 export const NODE_TEXT_PADDING_TOP = 4;
@@ -23,16 +30,26 @@ export const NODE_FONT = `${NODE_FONT_SIZE_PX} ${NODE_FONT_FAMILY}`;
 
 const BASE_PADDING = 5;
 
-export class GraphView {
-  private readonly minX: number;
-  private readonly minY: number;
-  private readonly maxX: number;
-  private readonly maxY: number;
-  private readonly rightLabelMaxWidth: number;
-  private readonly leftNodeMaxRadius: number;
-  private readonly bottomNodeMaxRadius: number;
+class _GraphView extends React.Component<
+  GraphViewProps & Partial<GraphViewCollectedProps>
+> {
+  private ref = React.createRef<HTMLDivElement>();
+  private svg: d3.Selection<SVGSVGElement, unknown, null, undefined>;
 
-  constructor(private readonly props: GraphViewProps) {
+  componentDidMount() {
+    this.draw();
+  }
+
+  componentDidUpdate() {
+    this.svg.remove();
+    this.draw();
+  }
+
+  render() {
+    return <div className="h-100 w-100" ref={this.ref} />;
+  }
+
+  private draw() {
     let minX = Number.POSITIVE_INFINITY;
     let minY = Number.POSITIVE_INFINITY;
     let maxX = Number.NEGATIVE_INFINITY;
@@ -41,7 +58,7 @@ export class GraphView {
     let leftNodeMaxRadius = Number.NEGATIVE_INFINITY;
     let bottomNodeMaxRadius = Number.NEGATIVE_INFINITY;
 
-    for (const [node, { x, y, radius }] of props.nodes.entries()) {
+    for (const [node, { x, y, radius }] of this.props.nodes.entries()) {
       minX = Math.min(minX, x);
       minY = Math.min(minY, y);
       maxX = Math.max(maxX, x);
@@ -61,23 +78,14 @@ export class GraphView {
       }
     }
 
-    this.minX = minX;
-    this.minY = minY;
-    this.maxX = maxX;
-    this.maxY = maxY;
-    this.rightLabelMaxWidth = rightLabelMaxWidth;
-    this.leftNodeMaxRadius = leftNodeMaxRadius;
-    this.bottomNodeMaxRadius = bottomNodeMaxRadius;
-  }
+    const node = this.ref.current;
 
-  draw(node: HTMLElement) {
-    const w = this.maxX - this.minX;
-    const h = this.maxY - this.minY;
+    const w = maxX - minX;
+    const h = maxY - minY;
 
-    // TODO: Вынести в отдельную компоненту, навесить Resizer
-    const { width, height } = node.getBoundingClientRect();
+    const { width, height, nodes, edges } = this.props;
 
-    const vis = d3
+    this.svg = d3
       .select(node)
       .append("svg")
       .attr("cursor", "move")
@@ -86,23 +94,19 @@ export class GraphView {
       .attr(
         "viewBox",
         [
-          this.minX - this.leftNodeMaxRadius - BASE_PADDING,
-          this.minY - NODE_FONT_SIZE - BASE_PADDING,
-          w +
-            this.rightLabelMaxWidth +
-            this.leftNodeMaxRadius +
-            BASE_PADDING * 2,
-          h + NODE_FONT_SIZE + this.bottomNodeMaxRadius + BASE_PADDING * 2,
+          minX - leftNodeMaxRadius - BASE_PADDING,
+          minY - NODE_FONT_SIZE - BASE_PADDING,
+          w + rightLabelMaxWidth + leftNodeMaxRadius + BASE_PADDING * 2,
+          h + NODE_FONT_SIZE + bottomNodeMaxRadius + BASE_PADDING * 2,
         ].join(" ")
       )
       .call(
         d3.zoom<SVGSVGElement, unknown>().on("zoom", function (e) {
           vis.attr("transform", e.transform);
         })
-      )
-      .append("g");
+      );
 
-    const { nodes, edges } = this.props;
+    const vis = this.svg.append("g");
     vis
       .selectAll("circle .nodes")
       .data(nodes.values())
@@ -141,3 +145,5 @@ export class GraphView {
       .attr("text-anchor", "beginning");
   }
 }
+
+export const GraphView = withResizeDetector(_GraphView);
