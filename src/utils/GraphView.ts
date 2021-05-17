@@ -12,10 +12,11 @@ export interface GraphViewProps {
   edges: Edge[];
 }
 
+export const NODE_FONT_SIZE = 14;
 const NODE_FONT_FAMILY = "Bree Serif";
-const NODE_FONT_SIZE = "14px";
+const NODE_FONT_SIZE_PX = `${NODE_FONT_SIZE}px`;
 
-export const NODE_FONT = `${NODE_FONT_SIZE} ${NODE_FONT_FAMILY}`;
+export const NODE_FONT = `${NODE_FONT_SIZE_PX} ${NODE_FONT_FAMILY}`;
 
 export class GraphView {
   private readonly minX: number;
@@ -41,22 +42,28 @@ export class GraphView {
     this.maxY = maxY;
   }
 
-  private drawed: Map<
-    HTMLElement,
-    d3.Selection<SVGSVGElement, unknown, null, undefined>
-  > = new Map();
-
   draw(node: HTMLElement) {
-    if (this.drawed.has(node)) return;
-
-    const vis = d3.select(node).append("svg");
-
     const w = this.maxX - this.minX;
     const h = this.maxY - this.minY;
-    vis
-      .attr("width", "100%")
-      .attr("height", "100%")
-      .attr("viewBox", [this.minX - 10, this.minY - 10, w + 20, h + 20].join(" "));
+
+    // TODO: Вынести в отдельную компоненту, навесить Resizer
+    const { width, height } = node.getBoundingClientRect();
+
+    const vis = d3
+      .select(node)
+      .append("svg")
+      .attr("width", width)
+      .attr("height", height)
+      .attr(
+        "viewBox",
+        [this.minX - w / 2, this.minY - h / 2, w * 2, h * 2].join(" ")
+      )
+      .call(
+        d3.zoom<SVGSVGElement, unknown>().on("zoom", function (e) {
+          vis.attr("transform", e.transform);
+        })
+      )
+      .append("g");
 
     const { nodes, edges } = this.props;
     vis
@@ -92,21 +99,8 @@ export class GraphView {
       .attr("x", ([, { x, radius }]) => x + radius)
       .attr("y", ([, { y, radius }]) => y - radius)
       .attr("font-family", NODE_FONT_FAMILY)
-      .attr("font-size", NODE_FONT_SIZE)
+      .attr("font-size", NODE_FONT_SIZE_PX)
       .attr("fill", "black")
       .attr("text-anchor", "beginning");
-
-    const zoom = d3.zoom<SVGSVGElement, unknown>().on("zoom", (e) => {
-      vis.attr("transform", e.transform);
-    });
-
-    vis.call(zoom).call(zoom.transform, d3.zoomIdentity);
-
-    this.drawed.set(node, vis);
-  }
-
-  remove(node: HTMLElement) {
-    this.drawed.get(node).remove();
-    this.drawed.delete(node);
   }
 }

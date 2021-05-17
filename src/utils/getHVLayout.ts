@@ -1,13 +1,28 @@
-import { GraphViewProps, Edge, Point } from "./GraphView";
+import { getTextWidth } from "./getTextWidth";
+import {
+  GraphViewProps,
+  Edge,
+  Point,
+  NODE_FONT_SIZE,
+  NODE_FONT,
+} from "./GraphView";
 import { Graph } from "./parseGraphML";
 
-type Direction = "vertical" | "horizontal";
+type Delta = {
+  dw: number;
+  dh: number;
+};
+
+type Deltas = [Delta, Delta];
 
 type Rect = {
   w: number;
   h: number;
-  dir?: Direction;
+  d?: [Delta, Delta];
 };
+
+const DEFAULT_NODE_RADIUS = 2;
+const MIN_EDGE_LENGTH = 5;
 
 function convertRectsToPoints(
   root: string,
@@ -22,12 +37,9 @@ function convertRectsToPoints(
       return;
     }
 
-    const rect = rects.get(node);
-    children.forEach((node) => {
-      const { w, h, dir } = rects.get(node);
-      const dw = dir === "horizontal" ? 0 : 1;
-      const dh = dir === "vertical" ? 0 : 1;
-      dfs(node, x + rect.w - w - dw, y + rect.h - h - dh);
+    const { d } = rects.get(node);
+    children.forEach((node, i) => {
+      dfs(node, x + d[i].dw, y + d[i].dh);
     });
   }
 
@@ -60,25 +72,62 @@ function getHVNodes(
     const childRect2 =
       children.length === 2 ? rects.get(children[1]) : { w: 0, h: 0 };
 
-    const rect1 = { w: childRect1.w + childRect2.w + 1, h: childRect2.h + 1 }; // 1 - right_width2, 2 - down_1
-    const rect2 = { w: childRect1.w + 1, h: childRect1.h + childRect2.h + 1 }; // 1 - right_1, 2 - down_height1
-    const rect3 = { w: childRect1.w + childRect2.w + 1, h: childRect1.h + 1 }; // 1 - down_1, 2 - right_width1
-    const rect4 = { w: childRect2.w + 1, h: childRect1.h + childRect2.h + 1 }; // 1 - down_height1, 2 - right_1
-    const _rects = [
-      { rect: rect1, hvOrder: true },
-      { rect: rect2, hvOrder: true },
-      { rect: rect3, hvOrder: false },
-      { rect: rect4, hvOrder: false },
-    ];
-    _rects.sort(({ rect: rect1 }, { rect: rect2 }) =>
-      isRectBetter(rect1, rect2)
+    const minEdgeWidth = Math.max(
+      DEFAULT_NODE_RADIUS * 2 + MIN_EDGE_LENGTH,
+      getTextWidth(node, NODE_FONT)
     );
-    const [dir1, dir2] = _rects[0].hvOrder
-      ? ["horizontal", "vertical"]
-      : ["vertical", "horizontal"];
-    rects.set(node, _rects[0].rect);
-    childRect1.dir = dir1 as Direction;
-    childRect2.dir = dir2 as Direction;
+    const minEdgeHeight = Math.max(
+      DEFAULT_NODE_RADIUS * 2 + MIN_EDGE_LENGTH,
+      NODE_FONT_SIZE
+    );
+
+    const w1 = Math.max(minEdgeWidth, childRect2.w + 1);
+    const h1 = minEdgeHeight;
+    const rect1 = {
+      w: childRect1.w + w1,
+      h: childRect2.h + h1,
+      d: [
+        { dw: w1, dh: 0 },
+        { dw: 0, dh: h1 },
+      ] as Deltas,
+    }; // 1 - right_width2, 2 - down_1
+
+    const w2 = minEdgeWidth;
+    const h2 = Math.max(minEdgeHeight, childRect1.h + 1);
+    const rect2 = {
+      w: childRect1.w + w2,
+      h: childRect2.h + h2,
+      d: [
+        { dw: w2, dh: 0 },
+        { dw: 0, dh: h2 },
+      ] as Deltas,
+    }; // 1 - right_1, 2 - down_height1
+
+    const w3 = Math.max(minEdgeWidth, childRect1.w + 1);
+    const h3 = minEdgeHeight;
+    const rect3 = {
+      w: childRect2.w + w3,
+      h: childRect1.h + h3,
+      d: [
+        { dw: 0, dh: h3 },
+        { dw: w3, dh: 0 },
+      ] as Deltas,
+    }; // 1 - down_1, 2 - right_width1
+
+    const w4 = minEdgeWidth;
+    const h4 = Math.max(minEdgeHeight, childRect1.h + 1);
+    const rect4 = {
+      w: childRect2.w + w4,
+      h: childRect2.h + h4,
+      d: [
+        { dw: 0, dh: h4 },
+        { dw: w4, dh: 0 },
+      ] as Deltas,
+    }; // 1 - down_height1, 2 - right_1
+
+    const _rects = [rect1, rect2, rect3, rect4];
+    _rects.sort(isRectBetter);
+    rects.set(node, _rects[0]);
   }
 
   dfs(root);
