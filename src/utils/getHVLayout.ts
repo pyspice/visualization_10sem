@@ -52,6 +52,7 @@ function convertRectsToPoints(
 
 function isRectBetter(rect1: Rect, rect2: Rect): number {
   return (
+    rect1.h * rect1.w - rect2.h * rect2.w ||
     Math.abs(rect1.h - rect1.w) - Math.abs(rect2.h - rect2.w) ||
     rect1.h - rect2.h
   );
@@ -117,15 +118,15 @@ function getHVNodes(
     }; // 1 - down_1, 2 - right_width1
 
     const w4 = minEdgeWidth;
-    const h4 = Math.max(minEdgeHeight, childRect1.h + 1);
+    const h4 = Math.max(minEdgeHeight, childRect2.h + 1);
     const rect4 = {
       w: childRect2.w + w4,
-      h: childRect2.h + h4,
+      h: childRect1.h + h4,
       d: [
         { dw: 0, dh: h4 },
         { dw: w4, dh: 0 },
       ] as Deltas,
-    }; // 1 - down_height1, 2 - right_1
+    }; // 1 - down_height2, 2 - right_1
 
     const _rects = [rect1, rect2, rect3, rect4];
     _rects.sort(isRectBetter);
