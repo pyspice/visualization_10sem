@@ -1,7 +1,7 @@
 import * as React from "react";
 import Container from "react-bootstrap/Container";
-import Row from "react-bootstrap/Container";
-import Col from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
 import { debounce } from "lodash";
 import { UploadableTextInput, GraphView, GraphViewProps } from "src/components";
 import { getHVLayout, parseGraphML } from "src/utils";
