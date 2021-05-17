@@ -1,4 +1,5 @@
 import * as d3 from "d3";
+import { getTextWidth } from "./getTextWidth";
 
 export type Point = {
   x: number;
@@ -20,28 +21,53 @@ const NODE_FONT_SIZE_PX = `${NODE_FONT_SIZE}px`;
 
 export const NODE_FONT = `${NODE_FONT_SIZE_PX} ${NODE_FONT_FAMILY}`;
 
+const BASE_PADDING = 5;
+
 export class GraphView {
   private readonly minX: number;
   private readonly minY: number;
   private readonly maxX: number;
   private readonly maxY: number;
+  private readonly rightLabelMaxWidth: number;
+  private readonly leftNodeMaxRadius: number;
+  private readonly bottomNodeMaxRadius: number;
+
   constructor(private readonly props: GraphViewProps) {
     let minX = Number.POSITIVE_INFINITY;
     let minY = Number.POSITIVE_INFINITY;
     let maxX = Number.NEGATIVE_INFINITY;
     let maxY = Number.NEGATIVE_INFINITY;
+    let rightLabelMaxWidth = Number.NEGATIVE_INFINITY;
+    let leftNodeMaxRadius = Number.NEGATIVE_INFINITY;
+    let bottomNodeMaxRadius = Number.NEGATIVE_INFINITY;
 
-    for (const { x, y } of props.nodes.values()) {
+    for (const [node, { x, y, radius }] of props.nodes.entries()) {
       minX = Math.min(minX, x);
       minY = Math.min(minY, y);
       maxX = Math.max(maxX, x);
       maxY = Math.max(maxY, y);
+      if (maxX === x) {
+        rightLabelMaxWidth = Math.max(
+          rightLabelMaxWidth,
+          getTextWidth(node, NODE_FONT)
+        );
+      }
+      if (minX === x) {
+        leftNodeMaxRadius = Math.max(leftNodeMaxRadius, radius);
+      }
+
+      if (maxY === y) {
+        bottomNodeMaxRadius = Math.max(bottomNodeMaxRadius, radius);
+      }
     }
 
     this.minX = minX;
     this.minY = minY;
     this.maxX = maxX;
     this.maxY = maxY;
+    this.rightLabelMaxWidth = rightLabelMaxWidth;
+    this.leftNodeMaxRadius = leftNodeMaxRadius;
+    this.bottomNodeMaxRadius = bottomNodeMaxRadius;
   }
 
   draw(node: HTMLElement) {
@@ -58,7 +84,15 @@ export class GraphView {
       .attr("height", height)
       .attr(
         "viewBox",
-        [this.minX - w / 2, this.minY - h / 2, w * 2, h * 2].join(" ")
+        [
+          this.minX - this.leftNodeMaxRadius - BASE_PADDING,
+          this.minY - NODE_FONT_SIZE - BASE_PADDING,
+          w +
+            this.rightLabelMaxWidth +
+            this.leftNodeMaxRadius +
+            BASE_PADDING * 2,
+          h + NODE_FONT_SIZE + this.bottomNodeMaxRadius + BASE_PADDING * 2,
+        ].join(" ")
       )
       .call(
         d3.zoom<SVGSVGElement, unknown>().on("zoom", function (e) {
