@@ -2,9 +2,8 @@ import * as React from "react";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Container";
 import Col from "react-bootstrap/Container";
-import { GraphInput } from "src/components";
-import { GraphView, GraphViewProps, parseGraphML } from "src/utils";
-import { getHVLayout } from "src/utils/getHVLayout";
+import { GraphInput, GraphView, GraphViewProps } from "src/components";
+import { getHVLayout, parseGraphML } from "src/utils";
 
 export function TreeHV() {
   const ref = React.useRef<HTMLDivElement>(null);

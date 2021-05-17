@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { getTextWidth } from "./getTextWidth";
+import { getTextWidth } from "src/utils";
 
 export type Point = {
   x: number;

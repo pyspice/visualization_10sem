@@ -1,13 +1,12 @@
 import { getTextWidth } from "./getTextWidth";
 import {
   GraphViewProps,
-  Edge,
   Point,
   NODE_FONT_SIZE,
   NODE_FONT,
   NODE_TEXT_PADDING_RIGHT,
   NODE_TEXT_PADDING_TOP,
-} from "./GraphView";
+} from "src/components";
 import { Graph } from "./parseGraphML";
 
 type Delta = {
