@@ -52,8 +52,7 @@ function convertRectsToPoints(
 function isRectBetter(rect1: Rect, rect2: Rect): number {
   return (
     rect1.h * rect1.w - rect2.h * rect2.w ||
-    Math.abs(rect1.h - rect1.w) - Math.abs(rect2.h - rect2.w) ||
-    rect1.h - rect2.h
+    Math.abs(rect1.h - rect1.w) - Math.abs(rect2.h - rect2.w)
   );
 }
 
