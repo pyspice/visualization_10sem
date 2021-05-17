@@ -1,7 +1,7 @@
 import { getTextWidth } from "./getTextWidth";
 import {
   GraphViewProps,
-  Point,
+  Node,
   NODE_FONT_SIZE,
   NODE_FONT,
   NODE_TEXT_PADDING_RIGHT,
@@ -25,14 +25,14 @@ type Rect = {
 const DEFAULT_NODE_RADIUS = 2;
 const MIN_EDGE_LENGTH = 5;
 
-function convertRectsToPoints(
+function convertRectsToNodes(
   root: string,
   rects: Map<string, Rect>,
   edges: Map<string, string[]>
-): Map<string, Point> {
-  const points = new Map<string, Point>();
+): Map<string, Node> {
+  const nodes = new Map<string, Node>();
   function dfs(node: string, x: number, y: number): void {
-    points.set(node, { x, y, radius: 1 });
+    nodes.set(node, { x, y, radius: 1 });
     const children = edges.get(node);
     if (children.length === 0) {
       return;
@@ -46,7 +46,7 @@ function convertRectsToPoints(
 
   dfs(root, 0, 0);
 
-  return points;
+  return nodes;
 }
 
 function isRectBetter(rect1: Rect, rect2: Rect): number {
@@ -59,7 +59,7 @@ function isRectBetter(rect1: Rect, rect2: Rect): number {
 function getHVNodes(
   root: string,
   edges: Map<string, string[]>
-): Map<string, Point> {
+): Map<string, Node> {
   const rects = new Map<string, Rect>();
   function dfs(node: string): void {
     const children = edges.get(node);
@@ -133,7 +133,7 @@ function getHVNodes(
 
   dfs(root);
 
-  return convertRectsToPoints(root, rects, edges);
+  return convertRectsToNodes(root, rects, edges);
 }
 
 export function getHVLayout(graph: Graph): GraphViewProps {

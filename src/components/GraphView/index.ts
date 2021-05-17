@@ -5,4 +5,4 @@ export {
   NODE_TEXT_PADDING_TOP,
   NODE_TEXT_PADDING_RIGHT,
 } from "./GraphView";
-export type { Point, Edge, GraphViewProps } from "./GraphView";
+export type { Node, Edge, GraphViewProps } from "./GraphView";

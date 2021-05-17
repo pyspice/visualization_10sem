@@ -3,7 +3,7 @@ import * as d3 from "d3";
 import { withResizeDetector } from "react-resize-detector";
 import { getTextWidth } from "src/utils";
 
-export type Point = {
+export type Node = {
   x: number;
   y: number;
   radius: number;
@@ -11,7 +11,7 @@ export type Point = {
 export type Edge = { from: string; to: string };
 
 export interface GraphViewProps {
-  nodes: Map<string, Point>;
+  nodes: Map<string, Node>;
   edges: Edge[];
 }
 
