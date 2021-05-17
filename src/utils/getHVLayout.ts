@@ -5,6 +5,8 @@ import {
   Point,
   NODE_FONT_SIZE,
   NODE_FONT,
+  NODE_TEXT_PADDING_RIGHT,
+  NODE_TEXT_PADDING_TOP,
 } from "./GraphView";
 import { Graph } from "./parseGraphML";
 
@@ -74,11 +76,11 @@ function getHVNodes(
 
     const minEdgeWidth = Math.max(
       DEFAULT_NODE_RADIUS * 2 + MIN_EDGE_LENGTH,
-      getTextWidth(node, NODE_FONT)
+      getTextWidth(node, NODE_FONT) + NODE_TEXT_PADDING_RIGHT
     );
     const minEdgeHeight = Math.max(
       DEFAULT_NODE_RADIUS * 2 + MIN_EDGE_LENGTH,
-      NODE_FONT_SIZE
+      NODE_FONT_SIZE + NODE_TEXT_PADDING_TOP
     );
 
     const w1 = Math.max(minEdgeWidth, childRect2.w + 1);

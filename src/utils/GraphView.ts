@@ -13,6 +13,8 @@ export interface GraphViewProps {
 }
 
 export const NODE_FONT_SIZE = 14;
+export const NODE_TEXT_PADDING_RIGHT = 4;
+export const NODE_TEXT_PADDING_TOP = 4;
 const NODE_FONT_FAMILY = "Bree Serif";
 const NODE_FONT_SIZE_PX = `${NODE_FONT_SIZE}px`;
 
@@ -97,7 +99,7 @@ export class GraphView {
         return name;
       })
       .attr("x", ([, { x, radius }]) => x + radius)
-      .attr("y", ([, { y, radius }]) => y - radius)
+      .attr("y", ([, { y, radius }]) => y - radius - 1)
       .attr("font-family", NODE_FONT_FAMILY)
       .attr("font-size", NODE_FONT_SIZE_PX)
       .attr("fill", "black")
