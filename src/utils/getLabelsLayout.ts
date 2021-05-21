@@ -134,6 +134,8 @@ export function getLabelsLayout(labels: Label[]): PointsViewProps {
     } else {
       outsideNodes.add(comp);
     }
+
+    if (outsideNodes.has(stat) && outsideNodes.has(comp)) return undefined;
   }
 
   for (let i = 0; i < rects.length; ++i) {
