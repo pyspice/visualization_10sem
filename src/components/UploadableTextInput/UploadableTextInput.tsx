@@ -4,7 +4,7 @@ import Form from "react-bootstrap/Form";
 export type UploadableTextInputProps = {
   value: string;
   onChange: (value: string) => void;
-  label: string;
+  label: React.ReactNode;
   accept?: string;
 };
 
