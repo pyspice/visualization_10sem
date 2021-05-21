@@ -112,10 +112,10 @@ export class PointsView extends React.Component<
       .attr("fill", "url(#diagonalHatch)");
     vis
       .append("rect")
-      .attr("x", 0)
-      .attr("y", 0)
-      .attr("width", 500)
-      .attr("height", 500)
+      .attr("x", -1)
+      .attr("y", -1)
+      .attr("width", 502)
+      .attr("height", 502)
       .attr("stroke", "red")
       .attr("stroke-width", 1)
       .attr("fill", "white");
