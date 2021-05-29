@@ -64,7 +64,10 @@ function getHVNodes(
   function dfs(node: string): void {
     const children = edges.get(node);
     if (children.length === 0) {
-      rects.set(node, { w: 0, h: 0 });
+      rects.set(node, {
+        w: getTextWidth(node, NODE_FONT) + DEFAULT_NODE_RADIUS,
+        h: NODE_FONT_SIZE + DEFAULT_NODE_RADIUS,
+      });
       return;
     }
 
