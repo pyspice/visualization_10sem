@@ -9,6 +9,7 @@ type Rect = {
 };
 
 function getConfig(
+  preSolution: Map<string, boolean>,
   nodes: string[],
   edges: Map<string, string[]>,
   edgesT: Map<string, string[]>
@@ -32,6 +33,11 @@ function getConfig(
     }
   }
 
+  for (const [node] of [...preSolution.entries()].sort(([, val1], [, val2]) =>
+    val1 && !val2 ? -1 : val2 && !val1 ? 1 : 0
+  )) {
+    if (!used.has(node)) dfs1(node);
+  }
   for (const node of nodes) {
     if (!used.has(node)) dfs1(node);
   }
@@ -48,6 +54,10 @@ function getConfig(
     const cNode = colors.get(node) ?? -1,
       cComp = colors.get(comp) ?? -1;
     if (cNode === cComp) return undefined;
+    if (preSolution.has(node)) {
+      const val = cNode > cComp;
+      if (preSolution.get(node) !== val) return undefined;
+    }
     solution.set(node, cNode > cComp);
     solution.set(comp, cNode < cComp);
   }
@@ -96,10 +106,10 @@ const CANVAS_RECT = { left: 0, top: 0, right: 500, bottom: 500 };
 
 export function getLabelsLayout(labels: Label[]): PointsViewProps {
   const nodes: string[] = [];
-  const outsideNodes = new Set<string>();
   const rects: Rect[] = [];
   const edges = new Map<string, string[]>();
   const edgesT = new Map<string, string[]>();
+  const solution = new Map<string, boolean>();
   for (let i = 0; i < labels.length; ++i) {
     const { w, h, p1, p2 } = labels[i];
 
@@ -110,14 +120,11 @@ export function getLabelsLayout(labels: Label[]): PointsViewProps {
       bottom: p1.y + h,
     };
     const stat = getStatId(i);
-    if (isSubrect(rect1, CANVAS_RECT)) {
-      nodes.push(stat);
-      edges.set(stat, []);
-      edgesT.set(stat, []);
-      rects.push(rect1);
-    } else {
-      outsideNodes.add(stat);
-    }
+    let statIsOutside = !isSubrect(rect1, CANVAS_RECT);
+    nodes.push(stat);
+    edges.set(stat, []);
+    edgesT.set(stat, []);
+    rects.push(rect1);
 
     const rect2 = {
       left: p2.x,
@@ -126,16 +133,20 @@ export function getLabelsLayout(labels: Label[]): PointsViewProps {
       bottom: p2.y + h,
     };
     const comp = getCompId(i);
-    if (isSubrect(rect2, CANVAS_RECT)) {
-      nodes.push(comp);
-      edges.set(comp, []);
-      edgesT.set(comp, []);
-      rects.push(rect2);
-    } else {
-      outsideNodes.add(comp);
-    }
+    let compIsOutside = !isSubrect(rect2, CANVAS_RECT);
+    nodes.push(comp);
+    edges.set(comp, []);
+    edgesT.set(comp, []);
+    rects.push(rect2);
 
-    if (outsideNodes.has(stat) && outsideNodes.has(comp)) return undefined;
+    if (statIsOutside && compIsOutside) return undefined;
+    if (statIsOutside) {
+      solution.set(stat, false);
+      solution.set(comp, true);
+    } else if (compIsOutside) {
+      solution.set(stat, true);
+      solution.set(comp, false);
+    }
   }
 
   for (let i = 0; i < rects.length; ++i) {
@@ -144,16 +155,16 @@ export function getLabelsLayout(labels: Label[]): PointsViewProps {
         const iComp = getNodeComp(nodes[i]);
         const jComp = getNodeComp(nodes[j]);
 
-        if (!outsideNodes.has(jComp)) edges.get(nodes[i])?.push(jComp);
-        if (!outsideNodes.has(iComp)) edges.get(nodes[j])?.push(iComp);
+        edges.get(nodes[i])?.push(jComp);
+        edges.get(nodes[j])?.push(iComp);
 
-        if (!outsideNodes.has(nodes[i])) edgesT.get(jComp)?.push(nodes[i]);
-        if (!outsideNodes.has(nodes[j])) edgesT.get(iComp)?.push(nodes[j]);
+        edgesT.get(jComp)?.push(nodes[i]);
+        edgesT.get(iComp)?.push(nodes[j]);
       }
     }
   }
 
-  const config = getConfig(nodes, edges, edgesT);
+  const config = getConfig(solution, nodes, edges, edgesT);
   if (config === undefined) return undefined;
   const points: Point[] = [];
   for (let i = 0; i < nodes.length; ++i) {
